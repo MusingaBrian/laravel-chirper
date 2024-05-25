@@ -7,19 +7,13 @@ use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class ChirpController extends Controller
 {
 
-    // public function index(): Response
-    // {
-    //      return response('Hello, Chirp');
-    //  
-    // }
-
     public function index(): View
     {
-        // return View('chirps.index');
 
         return View('chirps.index', [
             'chirps' => Chirp::with('user')->latest()->get(),
@@ -31,9 +25,7 @@ class ChirpController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,28 +37,36 @@ class ChirpController extends Controller
         return redirect(route('chirps.index'));
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Chirp $chirp)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Chirp $chirp)
+
+    public function edit(Chirp $chirp): View
     {
-        //
+        Gate::authorize('update', $chirp);
+
+        return view('chirps.edit', [
+            'chirp' => $chirp,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Chirp $chirp)
+    public function update(Request $request, Chirp $chirp): RedirectResponse
     {
-        //
+        Gate::authorize('update', $chirp);
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:255',
+        ]);
+
+        $chirp->update($validated);
+
+        return redirect(route('chirps.index'));
     }
 
     /**
