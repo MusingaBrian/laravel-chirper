@@ -19,7 +19,11 @@ class ChirpController extends Controller
 
     public function index(): View
     {
-        return View('chirps.index');
+        // return View('chirps.index');
+
+        return View('chirps.index', [
+            'chirps' => Chirp::with('user')->latest()->get(),
+        ]);
     }
 
     public function create()
